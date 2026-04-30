@@ -11,7 +11,7 @@ export const menuItems = [
     id: 2,
     name: "Veg Biryani",
     category: "Rice",
-    price: 180,
+    price: 1,
     image: "/images/veg-biryani.jpg",
     description: "Aromatic basmati rice cooked with vegetables and spices.",
   },
