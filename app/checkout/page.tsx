@@ -11,7 +11,7 @@ export default function CheckoutPage() {
     lng: 72.83041159486301,
   };
 
-  const UPI_ID = "9408227397@kotak"; // replace this
+  const UPI_ID = "9408227397@kotak";
   const BUSINESS_NAME = "The Real Spice";
 
   function calculateDistanceKm(
@@ -21,19 +21,15 @@ export default function CheckoutPage() {
     lon2: number,
   ) {
     const R = 6371;
-
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
-
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos((lat1 * Math.PI) / 180) *
         Math.cos((lat2 * Math.PI) / 180) *
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2);
-
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
     return Number((R * c).toFixed(2));
   }
 
@@ -46,6 +42,8 @@ export default function CheckoutPage() {
     userLng: 0,
     paymentMethod: "COD",
   });
+
+  const [locating, setLocating] = useState(false);
 
   const subtotal = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -61,28 +59,23 @@ export default function CheckoutPage() {
       alert("Location is not supported on this device");
       return;
     }
-
+    setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const userLat = position.coords.latitude;
         const userLng = position.coords.longitude;
-
         const distance = calculateDistanceKm(
           RESTAURANT_LOCATION.lat,
           RESTAURANT_LOCATION.lng,
           userLat,
           userLng,
         );
-
-        setCustomer({
-          ...customer,
-          userLat,
-          userLng,
-          distanceKm: distance,
-        });
+        setCustomer({ ...customer, userLat, userLng, distanceKm: distance });
+        setLocating(false);
       },
       () => {
         alert("Please allow location permission");
+        setLocating(false);
       },
     );
   };
@@ -92,21 +85,14 @@ export default function CheckoutPage() {
       alert("Please fill all details");
       return;
     }
-
     if (!customer.distanceKm) {
       alert("Please select your location");
       return;
     }
-
-    // If UPI selected → open payment first
     if (customer.paymentMethod === "ONLINE") {
-      const upiUrl = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(
-        BUSINESS_NAME,
-      )}&am=${total}&cu=INR`;
+      const upiUrl = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(BUSINESS_NAME)}&am=${total}&cu=INR`;
       window.location.href = upiUrl;
     }
-
-    // Save order (common for both)
     const orderData = {
       customerName: customer.name,
       phone: customer.phone,
@@ -119,7 +105,6 @@ export default function CheckoutPage() {
       deliveryCharge,
       total,
       paymentMethod: customer.paymentMethod,
-
       paymentStatus:
         customer.paymentMethod === "ONLINE"
           ? "PENDING_OWNER_CONFIRMATION"
@@ -130,143 +115,198 @@ export default function CheckoutPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(orderData),
     });
-
     const data = await response.json();
-
     if (!data.success) {
       alert("Order failed");
       return;
     }
-
-    // WhatsApp message
     const itemsText = cart
-      .map(
-        (item) =>
-          `${item.name} x ${item.quantity} = ₹${item.price * item.quantity}`,
-      )
+      .map((item) => `${item.name} x ${item.quantity} = ₹${item.price * item.quantity}`)
       .join("%0A");
-
     const message =
       `🍽️ New Order%0A%0A` +
       `Name: ${customer.name}%0A` +
       `Phone: ${customer.phone}%0A` +
       `Address: ${customer.address}%0A` +
       `Distance: ${customer.distanceKm} km%0A` +
-      `Payment Method: ${
-        customer.paymentMethod === "ONLINE" ? "UPI" : "Cash on Delivery"
-      }%0A` +
-      `Payment Status: ${
-        customer.paymentMethod === "ONLINE"
-          ? "Verify UPI payment manually"
-          : "Collect cash on delivery"
-      }%0A%0A` +
+      `Payment Method: ${customer.paymentMethod === "ONLINE" ? "UPI" : "Cash on Delivery"}%0A` +
+      `Payment Status: ${customer.paymentMethod === "ONLINE" ? "Verify UPI payment manually" : "Collect cash on delivery"}%0A%0A` +
       `Items:%0A${itemsText}%0A%0A` +
       `Total: ₹${total}`;
-
     window.open(`https://wa.me/919408227397?text=${message}`, "_blank");
   };
 
   return (
-    <main className="min-h-screen bg-[#120d0a] px-4 py-6 text-white">
-      <h1 className="text-2xl font-bold">Checkout</h1>
-
-      <div className="mt-6 space-y-4">
-        <input
-          placeholder="Full Name"
-          value={customer.name}
-          onChange={(e) => setCustomer({ ...customer, name: e.target.value })}
-          className="w-full rounded-xl bg-[#1f1712] p-4 outline-none"
-        />
-
-        <input
-          placeholder="Phone Number"
-          value={customer.phone}
-          onChange={(e) => setCustomer({ ...customer, phone: e.target.value })}
-          className="w-full rounded-xl bg-[#1f1712] p-4 outline-none"
-        />
-
-        <textarea
-          placeholder="Delivery Address"
-          value={customer.address}
-          onChange={(e) =>
-            setCustomer({ ...customer, address: e.target.value })
-          }
-          className="w-full rounded-xl bg-[#1f1712] p-4 outline-none"
-          rows={4}
-        />
-
-        <button
-          onClick={getUserLocation}
-          className="w-full rounded-xl bg-[#3a2418] p-4 font-semibold"
-        >
-          Use My Location
-        </button>
-
-        <p className="text-xs text-gray-400 text-center">
-          🚚 Delivery is free up to 5 km. Extra charges apply beyond 5 km.
-        </p>
-
-        {customer.distanceKm > 0 && (
-          <p className="text-sm text-green-400">
-            Distance from restaurant: {customer.distanceKm} km
+    <main className="min-h-screen bg-bg-dark px-4 py-8 md:px-8">
+      <div className="mx-auto max-w-3xl">
+        {/* Header */}
+        <div className="mb-8 animate-fade-in-up">
+          <p className="text-xs tracking-[0.3em] uppercase text-accent-green font-medium mb-1">
+            Final Step
           </p>
-        )}
-
-        <div className="rounded-2xl bg-[#1f1712] p-4">
-          <div className="flex justify-between">
-            <span>Subtotal</span>
-            <span>₹{subtotal}</span>
-          </div>
-
-          <div className="mt-2 flex justify-between text-gray-400">
-            <span>Delivery Charge</span>
-            <span>₹{deliveryCharge}</span>
-          </div>
-
-          <div className="rounded-2xl bg-[#1f1712] p-4">
-            <p className="mb-3 font-semibold">Payment Method</p>
-
-            <label className="flex items-center gap-3">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="COD"
-                checked={customer.paymentMethod === "COD"}
-                onChange={(e) =>
-                  setCustomer({ ...customer, paymentMethod: e.target.value })
-                }
-              />
-              Cash on Delivery
-            </label>
-
-            <label className="mt-3 flex items-center gap-3">
-              <input
-                type="radio"
-                name="paymentMethod"
-                value="ONLINE"
-                checked={customer.paymentMethod === "ONLINE"}
-                onChange={(e) =>
-                  setCustomer({ ...customer, paymentMethod: e.target.value })
-                }
-              />
-              Online Payment
-            </label>
-          </div>
-
-          <div className="mt-4 flex justify-between border-t border-white/10 pt-4 font-bold">
-            <span>Total</span>
-            <span>₹{total}</span>
-          </div>
+          <h1 className="font-[family-name:var(--font-playfair)] text-3xl font-bold text-text-primary">
+            Checkout
+          </h1>
         </div>
 
-        <button
-          onClick={handlePlaceOrder}
-          className="w-full rounded-full bg-orange-500 py-3 font-semibold"
-        >
-          {customer.paymentMethod === "COD"
-            ? "Place Order - Cash on Delivery"
-            : "Pay & Place Order"}
-        </button>
+        <div className="section-divider mb-8" />
+
+        <div className="grid gap-8 md:grid-cols-5">
+          {/* Form column */}
+          <div className="md:col-span-3 space-y-5 animate-fade-in-up">
+            {/* Customer details */}
+            <div className="rounded-2xl bg-bg-card border border-border-subtle p-5">
+              <h2 className="font-[family-name:var(--font-playfair)] text-base font-semibold text-text-primary mb-4 flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent-green text-xs text-white font-bold">1</span>
+                Your Details
+              </h2>
+              <div className="space-y-3">
+                <input
+                  placeholder="Full Name"
+                  value={customer.name}
+                  onChange={(e) => setCustomer({ ...customer, name: e.target.value })}
+                  className="w-full rounded-xl bg-bg-elevated border border-border-subtle p-3.5 text-sm text-text-primary placeholder:text-text-muted transition-all duration-200"
+                />
+                <input
+                  placeholder="Phone Number"
+                  value={customer.phone}
+                  onChange={(e) => setCustomer({ ...customer, phone: e.target.value })}
+                  className="w-full rounded-xl bg-bg-elevated border border-border-subtle p-3.5 text-sm text-text-primary placeholder:text-text-muted transition-all duration-200"
+                />
+                <textarea
+                  placeholder="Delivery Address"
+                  value={customer.address}
+                  onChange={(e) => setCustomer({ ...customer, address: e.target.value })}
+                  className="w-full rounded-xl bg-bg-elevated border border-border-subtle p-3.5 text-sm text-text-primary placeholder:text-text-muted transition-all duration-200 resize-none"
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            {/* Location */}
+            <div className="rounded-2xl bg-bg-card border border-border-subtle p-5">
+              <h2 className="font-[family-name:var(--font-playfair)] text-base font-semibold text-text-primary mb-4 flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent-green text-xs text-white font-bold">2</span>
+                Delivery Location
+              </h2>
+              <button
+                onClick={getUserLocation}
+                disabled={locating}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-bg-elevated border border-border-subtle p-3.5 text-sm font-medium text-text-secondary hover:border-accent-green/40 hover:text-accent-green transition-all duration-200 disabled:opacity-50"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                </svg>
+                {locating ? "Detecting..." : "Use My Location"}
+              </button>
+              <p className="mt-3 text-center text-xs text-text-muted">
+                🚚 Free delivery up to 5 km · ₹10/km beyond
+              </p>
+              {customer.distanceKm > 0 && (
+                <p className="mt-2 text-center text-sm text-accent-green font-medium">
+                  ✓ {customer.distanceKm} km from restaurant
+                </p>
+              )}
+            </div>
+
+            {/* Payment method */}
+            <div className="rounded-2xl bg-bg-card border border-border-subtle p-5">
+              <h2 className="font-[family-name:var(--font-playfair)] text-base font-semibold text-text-primary mb-4 flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent-green text-xs text-white font-bold">3</span>
+                Payment Method
+              </h2>
+              <div className="space-y-3">
+                <label
+                  className={`flex items-center gap-3 rounded-xl p-3.5 border cursor-pointer transition-all duration-200 ${
+                    customer.paymentMethod === "COD"
+                      ? "bg-accent-green/10 border-accent-green/40"
+                      : "bg-bg-elevated border-border-subtle hover:border-accent-green/20"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="COD"
+                    checked={customer.paymentMethod === "COD"}
+                    onChange={(e) => setCustomer({ ...customer, paymentMethod: e.target.value })}
+                    className="accent-accent-green"
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-text-primary">Cash on Delivery</p>
+                    <p className="text-xs text-text-muted">Pay when your food arrives</p>
+                  </div>
+                </label>
+                <label
+                  className={`flex items-center gap-3 rounded-xl p-3.5 border cursor-pointer transition-all duration-200 ${
+                    customer.paymentMethod === "ONLINE"
+                      ? "bg-accent-green/10 border-accent-green/40"
+                      : "bg-bg-elevated border-border-subtle hover:border-accent-green/20"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="ONLINE"
+                    checked={customer.paymentMethod === "ONLINE"}
+                    onChange={(e) => setCustomer({ ...customer, paymentMethod: e.target.value })}
+                    className="accent-accent-green"
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-text-primary">UPI Payment</p>
+                    <p className="text-xs text-text-muted">Pay securely via UPI</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Summary column */}
+          <div className="md:col-span-2 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+            <div className="sticky top-24 rounded-2xl bg-bg-card border border-accent-green/20 p-5">
+              <h3 className="font-[family-name:var(--font-playfair)] text-base font-semibold text-text-primary mb-4">
+                Order Summary
+              </h3>
+              <div className="space-y-3 mb-4">
+                {cart.map((item) => (
+                  <div key={item.id} className="flex justify-between text-sm">
+                    <span className="text-text-secondary">
+                      {item.name} × {item.quantity}
+                    </span>
+                    <span className="text-text-primary font-medium">
+                      ₹{item.price * item.quantity}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t border-border-subtle pt-3 space-y-2 text-sm">
+                <div className="flex justify-between text-text-secondary">
+                  <span>Subtotal</span>
+                  <span>₹{subtotal}</span>
+                </div>
+                <div className="flex justify-between text-text-secondary">
+                  <span>Delivery</span>
+                  <span className={deliveryCharge === 0 ? "text-accent-green" : ""}>
+                    {deliveryCharge === 0 ? "Free" : `₹${deliveryCharge}`}
+                  </span>
+                </div>
+              </div>
+              <div className="mt-3 pt-3 border-t border-border-subtle flex justify-between items-center">
+                <span className="font-semibold text-text-primary">Total</span>
+                <span className="text-xl font-bold text-accent-gold">₹{total}</span>
+              </div>
+
+              <button
+                onClick={handlePlaceOrder}
+                className="btn-shine mt-5 w-full rounded-full bg-accent-red py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-accent-red-light hover:shadow-[0_8px_30px_rgba(198,40,40,0.3)] animate-pulse-glow"
+              >
+                {customer.paymentMethod === "COD"
+                  ? "Place Order — Cash on Delivery"
+                  : "Pay & Place Order"}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   );
