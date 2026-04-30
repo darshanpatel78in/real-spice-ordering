@@ -13,6 +13,8 @@ export default function MenuCard({ item, index }: Props) {
   const { cart, addToCart, increaseQty, decreaseQty } = useCartStore();
   const cartItem = cart.find((ci) => ci.id === item.id);
 
+  const hasPrice = item.price !== null;
+
   return (
     <div
       className={`card-glow group rounded-2xl bg-bg-card border border-border-subtle overflow-hidden animate-fade-in-up stagger-${Math.min(index + 1, 10)}`}
@@ -47,48 +49,83 @@ export default function MenuCard({ item, index }: Props) {
         <h3 className="font-[family-name:var(--font-playfair)] text-lg font-semibold text-text-primary mb-1">
           {item.name}
         </h3>
-        <p className="text-xs text-text-muted leading-relaxed line-clamp-2 mb-4">
-          {item.description}
-        </p>
 
-        <div className="flex items-center justify-between">
-          {/* Price */}
-          <p className="text-xl font-bold text-accent-gold">
-            ₹{item.price}
+        {/* Thali items list */}
+        {item.items && item.items.length > 0 && (
+          <div className="mb-3 flex flex-wrap gap-1.5">
+            {item.items.map((subItem) => (
+              <span
+                key={subItem}
+                className="rounded-full bg-bg-elevated px-2.5 py-0.5 text-[10px] text-text-secondary border border-border-subtle"
+              >
+                {subItem}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Description (for non-thali items) */}
+        {!item.items && item.description && (
+          <p className="text-xs text-text-muted leading-relaxed line-clamp-2 mb-4">
+            {item.description}
           </p>
+        )}
+
+        <div className="flex items-center justify-between mt-auto pt-2">
+          {/* Price */}
+          {hasPrice ? (
+            <p className="text-xl font-bold text-accent-gold">
+              ₹{item.price}
+            </p>
+          ) : (
+            <p className="text-sm font-medium text-text-muted italic">
+              Price on request
+            </p>
+          )}
 
           {/* Add / Qty controls */}
-          {cartItem ? (
-            <div className="flex items-center gap-2">
+          {hasPrice ? (
+            cartItem ? (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => decreaseQty(item.id)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-bg-elevated text-text-secondary hover:bg-accent-red hover:text-white transition-all duration-200 text-sm font-bold"
+                >
+                  −
+                </button>
+                <span className="min-w-[24px] text-center text-sm font-semibold text-text-primary">
+                  {cartItem.quantity}
+                </span>
+                <button
+                  onClick={() => increaseQty(item.id)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-green text-white hover:bg-accent-green-light transition-all duration-200 text-sm font-bold"
+                >
+                  +
+                </button>
+              </div>
+            ) : (
               <button
-                onClick={() => decreaseQty(item.id)}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-bg-elevated text-text-secondary hover:bg-accent-red hover:text-white transition-all duration-200 text-sm font-bold"
+                onClick={() =>
+                  addToCart({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price!,
+                  })
+                }
+                className="btn-shine rounded-full bg-accent-red px-5 py-2 text-xs font-semibold text-white transition-all duration-300 hover:bg-accent-red-light hover:shadow-[0_4px_16px_rgba(198,40,40,0.3)]"
               >
-                −
+                Add to Cart
               </button>
-              <span className="min-w-[24px] text-center text-sm font-semibold text-text-primary">
-                {cartItem.quantity}
-              </span>
-              <button
-                onClick={() => increaseQty(item.id)}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-green text-white hover:bg-accent-green-light transition-all duration-200 text-sm font-bold"
-              >
-                +
-              </button>
-            </div>
+            )
           ) : (
-            <button
-              onClick={() =>
-                addToCart({
-                  id: item.id,
-                  name: item.name,
-                  price: item.price,
-                })
-              }
-              className="btn-shine rounded-full bg-accent-red px-5 py-2 text-xs font-semibold text-white transition-all duration-300 hover:bg-accent-red-light hover:shadow-[0_4px_16px_rgba(198,40,40,0.3)]"
+            <a
+              href="https://wa.me/919408227397?text=Hi%2C%20I%20want%20to%20enquire%20about%20the%20price%20of%20" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-shine rounded-full bg-accent-green px-4 py-2 text-xs font-semibold text-white transition-all duration-300 hover:bg-accent-green-light"
             >
-              Add to Cart
-            </button>
+              Enquire
+            </a>
           )}
         </div>
       </div>
