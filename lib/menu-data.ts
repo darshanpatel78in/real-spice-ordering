@@ -3,7 +3,7 @@ export const menuItems = [
     id: 1,
     name: "Paneer Tikka Masala",
     category: "Main Course",
-    price: 220,
+    price: 1,
     image: "/images/paneer-tikka.jpg",
     description: "Rich creamy paneer curry with authentic Indian spices.",
   },
