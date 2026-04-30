@@ -116,8 +116,9 @@ export default function CheckoutPage() {
 
     // If UPI selected → open payment first
     if (customer.paymentMethod === "ONLINE") {
-      const upiUrl = `upi://pay?pa=${UPI_ID}&pn=${BUSINESS_NAME}&am=${total}&cu=INR`;
-
+      const upiUrl = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(
+        BUSINESS_NAME,
+      )}&am=${total}&cu=INR`;
       window.location.href = upiUrl;
     }
 
