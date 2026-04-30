@@ -19,7 +19,7 @@ export const menuItems = [
     id: 3,
     name: "Butter Naan",
     category: "Breads",
-    price: 40,
+    price: 1,
     image: "/images/butter-naan.jpg",
     description: "Soft tandoori naan brushed with butter.",
   },
