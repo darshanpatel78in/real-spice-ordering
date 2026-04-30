@@ -3,16 +3,27 @@
 import { useCartStore } from "@/store/cart-store";
 
 export default function CartPage() {
-  const { cart, increaseQty, decreaseQty, removeItem } = useCartStore();
-
+  const { cart, increaseQty, decreaseQty, removeItem, clearCart } =
+    useCartStore();
   const totalAmount = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
-    0
+    0,
   );
 
   return (
     <main className="min-h-screen bg-[#120d0a] px-4 py-6 text-white">
-      <h1 className="text-2xl font-bold">Your Cart</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Your Cart</h1>
+
+        {cart.length > 0 && (
+          <button
+            onClick={clearCart}
+            className="rounded-full bg-red-500 px-4 py-2 text-sm font-semibold"
+          >
+            Clear Cart
+          </button>
+        )}
+      </div>
 
       {cart.length === 0 ? (
         <p className="mt-6 text-gray-400">Your cart is empty.</p>

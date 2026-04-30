@@ -87,22 +87,6 @@ export default function CheckoutPage() {
     );
   };
 
-  const payWithUPI = () => {
-    if (!customer.name || !customer.phone || !customer.address) {
-      alert("Please fill all details");
-      return;
-    }
-
-    if (!customer.distanceKm) {
-      alert("Please select your location");
-      return;
-    }
-
-    const upiUrl = `upi://pay?pa=${UPI_ID}&pn=${BUSINESS_NAME}&am=${total}&cu=INR`;
-
-    window.location.href = upiUrl;
-  };
-
   const handlePlaceOrder = async () => {
     if (!customer.name || !customer.phone || !customer.address) {
       alert("Please fill all details");
@@ -217,6 +201,10 @@ export default function CheckoutPage() {
         >
           Use My Location
         </button>
+
+        <p className="text-xs text-gray-400 text-center">
+          🚚 Delivery is free up to 5 km. Extra charges apply beyond 5 km.
+        </p>
 
         {customer.distanceKm > 0 && (
           <p className="text-sm text-green-400">
