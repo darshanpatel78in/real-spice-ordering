@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useCartStore } from "@/store/cart-store";
-
 export default function CheckoutPage() {
   const { cart } = useCartStore();
 
@@ -10,9 +9,6 @@ export default function CheckoutPage() {
     lat: 21.261514047844013,
     lng: 72.83041159486301,
   };
-
-  const UPI_ID = "9408227397@kotak";
-  const BUSINESS_NAME = "The Real Spice";
 
   function calculateDistanceKm(
     lat1: number,
@@ -40,6 +36,10 @@ export default function CheckoutPage() {
     distanceKm: 0,
     userLat: 0,
     userLng: 0,
+
+    selectedLat: RESTAURANT_LOCATION.lat,
+    selectedLng: RESTAURANT_LOCATION.lng,
+
     paymentMethod: "COD",
   });
 
@@ -70,7 +70,14 @@ export default function CheckoutPage() {
           userLat,
           userLng,
         );
-        setCustomer({ ...customer, userLat, userLng, distanceKm: distance });
+        setCustomer({
+          ...customer,
+          userLat,
+          userLng,
+          selectedLat: userLat,
+          selectedLng: userLng,
+          distanceKm: distance,
+        });
         setLocating(false);
       },
       () => {
@@ -89,10 +96,13 @@ export default function CheckoutPage() {
       alert("Please select your location");
       return;
     }
-    if (customer.paymentMethod === "ONLINE") {
-      const upiUrl = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(BUSINESS_NAME)}&am=${total}&cu=INR`;
-      window.location.href = upiUrl;
+    if (!cart.length || total <= 0) {
+      alert("Your cart is empty");
+      return;
     }
+
+    console.log("[Checkout] Placing order with total:", total);
+
     const orderData = {
       customerName: customer.name,
       phone: customer.phone,
@@ -106,8 +116,8 @@ export default function CheckoutPage() {
       total,
       paymentMethod: customer.paymentMethod,
       paymentStatus:
-        customer.paymentMethod === "ONLINE"
-          ? "PENDING_OWNER_CONFIRMATION"
+        customer.paymentMethod === "PHONEPE"
+          ? "PENDING_PHONEPE"
           : "PENDING_COD",
     };
     const response = await fetch("/api/orders", {
@@ -116,12 +126,49 @@ export default function CheckoutPage() {
       body: JSON.stringify(orderData),
     });
     const data = await response.json();
+    console.log("[Checkout] Order API response:", data);
     if (!data.success) {
       alert("Order failed");
       return;
     }
+
+    if (customer.paymentMethod === "PHONEPE") {
+      try {
+        const paymentPayload = {
+          orderId: data.order._id,
+          amount: total,
+          phone: customer.phone,
+        };
+        console.log("[Checkout] Sending to PhonePe:", paymentPayload);
+        const phonepeResponse = await fetch("/api/payment/phonepe/initiate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(paymentPayload),
+        });
+        const phonepeData = await phonepeResponse.json();
+        console.log("[Checkout] PhonePe response:", phonepeData);
+
+        if (phonepeData.success && phonepeData.redirectUrl) {
+          window.location.href = phonepeData.redirectUrl;
+          return;
+        } else {
+          const errorMsg = phonepeData.message || phonepeData.data?.message || "Failed to initiate payment";
+          console.error("[Checkout] PhonePe error:", errorMsg);
+          alert(`Payment Error: ${errorMsg}`);
+          return;
+        }
+      } catch (error) {
+        console.error("[Checkout] Payment error:", error);
+        alert("Payment initialization error");
+        return;
+      }
+    }
+
     const itemsText = cart
-      .map((item) => `${item.name} x ${item.quantity} = ₹${item.price * item.quantity}`)
+      .map(
+        (item) =>
+          `${item.name} x ${item.quantity} = ₹${item.price * item.quantity}`,
+      )
       .join("%0A");
     const message =
       `🍽️ New Order%0A%0A` +
@@ -129,8 +176,8 @@ export default function CheckoutPage() {
       `Phone: ${customer.phone}%0A` +
       `Address: ${customer.address}%0A` +
       `Distance: ${customer.distanceKm} km%0A` +
-      `Payment Method: ${customer.paymentMethod === "ONLINE" ? "UPI" : "Cash on Delivery"}%0A` +
-      `Payment Status: ${customer.paymentMethod === "ONLINE" ? "Verify UPI payment manually" : "Collect cash on delivery"}%0A%0A` +
+      `Payment Method: ${customer.paymentMethod === "PHONEPE" ? "UPI (PhonePe)" : "Cash on Delivery"}%0A` +
+      `Payment Status: ${customer.paymentMethod === "PHONEPE" ? "Payment pending verification" : "Collect cash on delivery"}%0A%0A` +
       `Items:%0A${itemsText}%0A%0A` +
       `Total: ₹${total}`;
     window.open(`https://wa.me/919408227397?text=${message}`, "_blank");
@@ -157,26 +204,34 @@ export default function CheckoutPage() {
             {/* Customer details */}
             <div className="rounded-2xl bg-bg-card border border-border-subtle p-5">
               <h2 className="font-[family-name:var(--font-playfair)] text-base font-semibold text-text-primary mb-4 flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent-green text-xs text-white font-bold">1</span>
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent-green text-xs text-white font-bold">
+                  1
+                </span>
                 Your Details
               </h2>
               <div className="space-y-3">
                 <input
                   placeholder="Full Name"
                   value={customer.name}
-                  onChange={(e) => setCustomer({ ...customer, name: e.target.value })}
+                  onChange={(e) =>
+                    setCustomer({ ...customer, name: e.target.value })
+                  }
                   className="w-full rounded-xl bg-bg-elevated border border-border-subtle p-3.5 text-sm text-text-primary placeholder:text-text-muted transition-all duration-200"
                 />
                 <input
                   placeholder="Phone Number"
                   value={customer.phone}
-                  onChange={(e) => setCustomer({ ...customer, phone: e.target.value })}
+                  onChange={(e) =>
+                    setCustomer({ ...customer, phone: e.target.value })
+                  }
                   className="w-full rounded-xl bg-bg-elevated border border-border-subtle p-3.5 text-sm text-text-primary placeholder:text-text-muted transition-all duration-200"
                 />
                 <textarea
                   placeholder="Delivery Address"
                   value={customer.address}
-                  onChange={(e) => setCustomer({ ...customer, address: e.target.value })}
+                  onChange={(e) =>
+                    setCustomer({ ...customer, address: e.target.value })
+                  }
                   className="w-full rounded-xl bg-bg-elevated border border-border-subtle p-3.5 text-sm text-text-primary placeholder:text-text-muted transition-all duration-200 resize-none"
                   rows={3}
                 />
@@ -186,7 +241,9 @@ export default function CheckoutPage() {
             {/* Location */}
             <div className="rounded-2xl bg-bg-card border border-border-subtle p-5">
               <h2 className="font-[family-name:var(--font-playfair)] text-base font-semibold text-text-primary mb-4 flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent-green text-xs text-white font-bold">2</span>
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent-green text-xs text-white font-bold">
+                  2
+                </span>
                 Delivery Location
               </h2>
               <button
@@ -194,12 +251,28 @@ export default function CheckoutPage() {
                 disabled={locating}
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-bg-elevated border border-border-subtle p-3.5 text-sm font-medium text-text-secondary hover:border-accent-green/40 hover:text-accent-green transition-all duration-200 disabled:opacity-50"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
+                  />
                 </svg>
                 {locating ? "Detecting..." : "Use My Location"}
               </button>
+
               <p className="mt-3 text-center text-xs text-text-muted">
                 🚚 Free delivery up to 5 km · ₹10/km beyond
               </p>
@@ -213,7 +286,9 @@ export default function CheckoutPage() {
             {/* Payment method */}
             <div className="rounded-2xl bg-bg-card border border-border-subtle p-5">
               <h2 className="font-[family-name:var(--font-playfair)] text-base font-semibold text-text-primary mb-4 flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent-green text-xs text-white font-bold">3</span>
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent-green text-xs text-white font-bold">
+                  3
+                </span>
                 Payment Method
               </h2>
               <div className="space-y-3">
@@ -229,17 +304,26 @@ export default function CheckoutPage() {
                     name="paymentMethod"
                     value="COD"
                     checked={customer.paymentMethod === "COD"}
-                    onChange={(e) => setCustomer({ ...customer, paymentMethod: e.target.value })}
+                    onChange={(e) =>
+                      setCustomer({
+                        ...customer,
+                        paymentMethod: e.target.value,
+                      })
+                    }
                     className="accent-accent-green"
                   />
                   <div>
-                    <p className="text-sm font-medium text-text-primary">Cash on Delivery</p>
-                    <p className="text-xs text-text-muted">Pay when your food arrives</p>
+                    <p className="text-sm font-medium text-text-primary">
+                      Cash on Delivery
+                    </p>
+                    <p className="text-xs text-text-muted">
+                      Pay when your food arrives
+                    </p>
                   </div>
                 </label>
                 <label
                   className={`flex items-center gap-3 rounded-xl p-3.5 border cursor-pointer transition-all duration-200 ${
-                    customer.paymentMethod === "ONLINE"
+                    customer.paymentMethod === "PHONEPE"
                       ? "bg-accent-green/10 border-accent-green/40"
                       : "bg-bg-elevated border-border-subtle hover:border-accent-green/20"
                   }`}
@@ -247,14 +331,23 @@ export default function CheckoutPage() {
                   <input
                     type="radio"
                     name="paymentMethod"
-                    value="ONLINE"
-                    checked={customer.paymentMethod === "ONLINE"}
-                    onChange={(e) => setCustomer({ ...customer, paymentMethod: e.target.value })}
+                    value="PHONEPE"
+                    checked={customer.paymentMethod === "PHONEPE"}
+                    onChange={(e) =>
+                      setCustomer({
+                        ...customer,
+                        paymentMethod: e.target.value,
+                      })
+                    }
                     className="accent-accent-green"
                   />
                   <div>
-                    <p className="text-sm font-medium text-text-primary">UPI Payment</p>
-                    <p className="text-xs text-text-muted">Pay securely via UPI</p>
+                    <p className="text-sm font-medium text-text-primary">
+                      UPI (PhonePe)
+                    </p>
+                    <p className="text-xs text-text-muted">
+                      Pay securely via PhonePe
+                    </p>
                   </div>
                 </label>
               </div>
@@ -262,7 +355,10 @@ export default function CheckoutPage() {
           </div>
 
           {/* Summary column */}
-          <div className="md:col-span-2 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+          <div
+            className="md:col-span-2 animate-fade-in-up"
+            style={{ animationDelay: "0.2s" }}
+          >
             <div className="sticky top-24 rounded-2xl bg-bg-card border border-accent-green/20 p-5">
               <h3 className="font-[family-name:var(--font-playfair)] text-base font-semibold text-text-primary mb-4">
                 Order Summary
@@ -286,14 +382,18 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-text-secondary">
                   <span>Delivery</span>
-                  <span className={deliveryCharge === 0 ? "text-accent-green" : ""}>
+                  <span
+                    className={deliveryCharge === 0 ? "text-accent-green" : ""}
+                  >
                     {deliveryCharge === 0 ? "Free" : `₹${deliveryCharge}`}
                   </span>
                 </div>
               </div>
               <div className="mt-3 pt-3 border-t border-border-subtle flex justify-between items-center">
                 <span className="font-semibold text-text-primary">Total</span>
-                <span className="text-xl font-bold text-accent-gold">₹{total}</span>
+                <span className="text-xl font-bold text-accent-gold">
+                  ₹{total}
+                </span>
               </div>
 
               <button
@@ -302,7 +402,7 @@ export default function CheckoutPage() {
               >
                 {customer.paymentMethod === "COD"
                   ? "Place Order — Cash on Delivery"
-                  : "Pay & Place Order"}
+                  : "Pay with PhonePe & Place Order"}
               </button>
             </div>
           </div>

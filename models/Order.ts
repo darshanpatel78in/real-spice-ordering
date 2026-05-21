@@ -24,6 +24,7 @@ const OrderSchema = new Schema(
     total: Number,
 
     paymentMethod: String,
+    merchantTransactionId: String,
     paymentStatus: {
       type: String,
       default: "PENDING",

@@ -7,22 +7,24 @@ export async function POST(req: Request) {
     await connectDB();
 
     const body = await req.json();
+    console.log("[Orders API] Creating order with data:", body);
 
     const order = await Order.create(body);
+    console.log("[Orders API] Order created with ID:", order._id);
 
     return NextResponse.json({
       success: true,
       order,
     });
   } catch (error) {
-  console.log("ORDER_SAVE_ERROR:", error);
+    console.log("ORDER_SAVE_ERROR:", error);
 
-  return NextResponse.json(
-    {
-      success: false,
-      message: "Failed to save order",
-    },
-    { status: 500 }
-  );
-}
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Failed to save order",
+      },
+      { status: 500 }
+    );
+  }
 }
