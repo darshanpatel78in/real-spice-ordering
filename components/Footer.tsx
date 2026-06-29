@@ -40,13 +40,12 @@ export default function Footer() {
               Opening Hours
             </h3>
             <div className="space-y-2 text-sm text-text-secondary">
-              <p>Monday – Saturday</p>
+              <p>Monday – Sunday</p>
               <p className="text-accent-gold font-medium">
-                11:00 AM – 10:00 PM
+                11:30 AM – 3:30 PM
               </p>
-              <p className="mt-3">Sunday</p>
               <p className="text-accent-gold font-medium">
-                12:00 PM – 9:00 PM
+                6:00 PM – 10:30 PM
               </p>
             </div>
           </div>

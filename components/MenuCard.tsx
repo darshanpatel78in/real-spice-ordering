@@ -32,9 +32,9 @@ export default function MenuCard({ item, index }: Props) {
         <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-transparent to-transparent" />
 
         {/* Category badge */}
-        <span className="absolute top-3 left-3 rounded-full bg-accent-green/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-sm">
+        {/* <span className="absolute top-3 left-3 rounded-full bg-accent-green/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-sm">
           {item.category}
-        </span>
+        </span> */}
 
         {/* Veg indicator */}
         {item.isVeg && (

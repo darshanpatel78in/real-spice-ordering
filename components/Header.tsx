@@ -23,6 +23,7 @@ export default function Header() {
               fill
               className="object-cover"
               priority
+              sizes="100px"
             />
           </div>
           <div className="hidden sm:block">

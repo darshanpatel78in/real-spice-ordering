@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@theme inline {
+ :root{
   --color-bg-dark: #1a1a12;
   --color-bg-card: #232318;
   --color-bg-elevated: #2e2e1f;
