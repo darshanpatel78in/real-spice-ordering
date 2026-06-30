@@ -15,16 +15,24 @@ export async function POST(req: Request) {
       );
     }
 
-    const merchantId = process.env.PHONEPE_MERCHANT_ID;
-    const saltKey = process.env.PHONEPE_SALT_KEY;
-    const saltIndex = process.env.PHONEPE_SALT_INDEX;
-    const env = process.env.PHONEPE_ENV;
+    const merchantId = process.env.PHONEPE_MERCHANT_ID || process.env.NEXT_PUBLIC_PHONEPE_MERCHANT_ID;
+    const saltKey = process.env.PHONEPE_SALT_KEY || process.env.NEXT_PUBLIC_PHONEPE_SALT_KEY;
+    const saltIndex = process.env.PHONEPE_SALT_INDEX || process.env.NEXT_PUBLIC_PHONEPE_SALT_INDEX;
+    const env = process.env.PHONEPE_ENV || process.env.NEXT_PUBLIC_PHONEPE_ENV || "TEST";
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
     if (!merchantId || !saltKey || !saltIndex) {
-      console.error("[PhonePe Init] Missing credentials:", { merchantId: !!merchantId, saltKey: !!saltKey, saltIndex: !!saltIndex });
+      console.error("[PhonePe Init] Missing credentials:", {
+        merchantId: !!merchantId,
+        saltKey: !!saltKey,
+        saltIndex: !!saltIndex,
+      });
       return NextResponse.json(
-        { success: false, message: "PhonePe credentials are not configured" },
+        {
+          success: false,
+          message: "PhonePe credentials are not configured. Check PHONEPE_MERCHANT_ID, PHONEPE_SALT_KEY, and PHONEPE_SALT_INDEX.",
+          code: "MISSING_PHONEPE_CONFIG",
+        },
         { status: 500 }
       );
     }

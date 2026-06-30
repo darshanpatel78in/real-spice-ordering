@@ -43,7 +43,11 @@ export default function CheckoutPage() {
     paymentMethod: "COD",
   });
 
+  const [showUpiQr, setShowUpiQr] = useState(false);
+  const [upiQrUrl, setUpiQrUrl] = useState("");
+  const [upiLink, setUpiLink] = useState("");
   const [locating, setLocating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const subtotal = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -88,99 +92,110 @@ export default function CheckoutPage() {
   };
 
   const handlePlaceOrder = async () => {
+    console.log("[Checkout] Place order click", { paymentMethod: customer.paymentMethod, total, showUpiQr });
     if (!customer.name || !customer.phone || !customer.address) {
       alert("Please fill all details");
       return;
     }
-    if (!customer.distanceKm) {
-      alert("Please select your location");
-      return;
-    }
+
     if (!cart.length || total <= 0) {
       alert("Your cart is empty");
       return;
     }
 
-    console.log("[Checkout] Placing order with total:", total);
-
-    const orderData = {
-      customerName: customer.name,
-      phone: customer.phone,
-      address: customer.address,
-      userLat: customer.userLat,
-      userLng: customer.userLng,
-      distanceKm: customer.distanceKm,
-      items: cart,
-      subtotal,
-      deliveryCharge,
-      total,
-      paymentMethod: customer.paymentMethod,
-      paymentStatus:
-        customer.paymentMethod === "PHONEPE"
-          ? "PENDING_PHONEPE"
-          : "PENDING_COD",
-    };
-    const response = await fetch("/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(orderData),
-    });
-    const data = await response.json();
-    console.log("[Checkout] Order API response:", data);
-    if (!data.success) {
-      alert("Order failed");
+    if (isSubmitting) {
       return;
     }
 
-    if (customer.paymentMethod === "PHONEPE") {
-      try {
-        const paymentPayload = {
-          orderId: data.order._id,
-          amount: total,
-          phone: customer.phone,
-        };
-        console.log("[Checkout] Sending to PhonePe:", paymentPayload);
-        const phonepeResponse = await fetch("/api/payment/phonepe/initiate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(paymentPayload),
-        });
-        const phonepeData = await phonepeResponse.json();
-        console.log("[Checkout] PhonePe response:", phonepeData);
-
-        if (phonepeData.success && phonepeData.redirectUrl) {
-          window.location.href = phonepeData.redirectUrl;
-          return;
-        } else {
-          const errorMsg = phonepeData.message || phonepeData.data?.message || "Failed to initiate payment";
-          console.error("[Checkout] PhonePe error:", errorMsg);
-          alert(`Payment Error: ${errorMsg}`);
+    setIsSubmitting(true);
+    try {
+      if (!customer.distanceKm) {
+        const continueWithoutLocation = window.confirm(
+          "Location has not been detected. Continue placing the order with your address only?"
+        );
+        if (!continueWithoutLocation) {
           return;
         }
-      } catch (error) {
-        console.error("[Checkout] Payment error:", error);
-        alert("Payment initialization error");
+      }
+
+      console.log("[Checkout] Placing order with total:", total);
+
+      const orderData = {
+        customerName: customer.name,
+        phone: customer.phone,
+        address: customer.address,
+        userLat: customer.userLat,
+        userLng: customer.userLng,
+        distanceKm: customer.distanceKm,
+        items: cart,
+        subtotal,
+        deliveryCharge,
+        total,
+        paymentMethod: customer.paymentMethod,
+        paymentStatus:
+          customer.paymentMethod === "PHONEPE"
+            ? "PENDING_PHONEPE"
+            : "PENDING_COD",
+      };
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      });
+      const data = await response.json();
+      console.log("[Checkout] Order API response:", data);
+      if (!response.ok || !data.success) {
+        const errorText = data.message || "Order failed. Please try again.";
+        alert(errorText);
         return;
       }
-    }
 
-    const itemsText = cart
-      .map(
-        (item) =>
-          `${item.name} x ${item.quantity} = ₹${item.price * item.quantity}`,
-      )
-      .join("%0A");
-    const message =
-      `🍽️ New Order%0A%0A` +
-      `Name: ${customer.name}%0A` +
-      `Phone: ${customer.phone}%0A` +
-      `Address: ${customer.address}%0A` +
-      `Distance: ${customer.distanceKm} km%0A` +
-      `Payment Method: ${customer.paymentMethod === "PHONEPE" ? "UPI (PhonePe)" : "Cash on Delivery"}%0A` +
-      `Payment Status: ${customer.paymentMethod === "PHONEPE" ? "Payment pending verification" : "Collect cash on delivery"}%0A%0A` +
-      `Items:%0A${itemsText}%0A%0A` +
-      `Total: ₹${total}`;
-    window.open(`https://wa.me/919408227397?text=${message}`, "_blank");
+      if (customer.paymentMethod === "PHONEPE") {
+        const upiId =
+          process.env.NEXT_PUBLIC_PHONEPE_MERCHANT_ID ||
+          process.env.NEXT_PUBLIC_UPI_ID ||
+          "9879868421@axl";
+        const generatedUpiLink = `upi://pay?pa=${encodeURIComponent(
+          upiId,
+        )}&pn=Real%20Spice&am=${total.toFixed(2)}&cu=INR&tn=Order%20Payment`;
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=360x360&data=${encodeURIComponent(
+          generatedUpiLink,
+        )}`;
+
+        setUpiLink(generatedUpiLink);
+        setUpiQrUrl(qrUrl);
+        setShowUpiQr(true);
+
+        // Allow the QR UI to render first, then try to open the app.
+        setTimeout(() => {
+          window.location.href = generatedUpiLink;
+        }, 500);
+        return;
+      }
+
+      const itemsText = cart
+        .map(
+          (item) =>
+            `${item.name} x ${item.quantity} = ₹${item.price * item.quantity}`,
+        )
+        .join("%0A");
+      const message =
+        `🍽️ New Order%0A%0A` +
+        `Name: ${customer.name}%0A` +
+        `Phone: ${customer.phone}%0A` +
+        `Address: ${customer.address}%0A` +
+        `Distance: ${customer.distanceKm} km%0A` +
+        `Payment Method: ${customer.paymentMethod === "PHONEPE" ? "UPI (PhonePe)" : "Cash on Delivery"}%0A` +
+        `Payment Status: ${customer.paymentMethod === "PHONEPE" ? "Payment pending verification" : "Collect cash on delivery"}%0A%0A` +
+        `Items:%0A${itemsText}%0A%0A` +
+        `Total: ₹${total}`;
+      window.open(`https://wa.me/919879868421?text=${message}`, "_blank");
+    } catch (error) {
+      console.error("[Checkout] Payment error:", error);
+      alert("Payment initialization error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -397,13 +412,54 @@ export default function CheckoutPage() {
               </div>
 
               <button
+                type="button"
                 onClick={handlePlaceOrder}
-                className="btn-shine mt-5 w-full rounded-full bg-accent-red py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-accent-red-light hover:shadow-[0_8px_30px_rgba(198,40,40,0.3)] animate-pulse-glow"
+                disabled={isSubmitting}
+                className="btn-shine mt-5 w-full rounded-full bg-accent-red py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-accent-red-light hover:shadow-[0_8px_30px_rgba(198,40,40,0.3)] animate-pulse-glow disabled:opacity-50"
               >
                 {customer.paymentMethod === "COD"
                   ? "Place Order — Cash on Delivery"
                   : "Pay with PhonePe & Place Order"}
               </button>
+
+              {showUpiQr && (
+                <div className="mt-5 rounded-2xl bg-bg-card border border-border-subtle p-4 text-center animate-fade-in-up">
+                  <h3 className="text-base font-semibold text-text-primary mb-2">
+                    Scan to Pay
+                  </h3>
+                  <p className="text-xs text-text-secondary mb-3">
+                    Tap to open PhonePe or scan the QR code below.
+                  </p>
+                  <div className="mx-auto mb-3 w-[180px] rounded-2xl border border-border-subtle bg-white p-3">
+                    <img
+                      src={upiQrUrl}
+                      alt="PhonePe UPI QR code"
+                      className="w-full h-auto"
+                    />
+                  </div>
+                  <p className="text-sm text-text-secondary mb-3">
+                    Amount: ₹{total.toFixed(2)}
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        window.location.href = upiLink;
+                      }}
+                      className="inline-flex items-center justify-center rounded-full bg-accent-red px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-accent-red-light"
+                    >
+                      Open in PhonePe
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowUpiQr(false)}
+                      className="inline-flex items-center justify-center rounded-full bg-accent-green px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-accent-green-dark"
+                    >
+                      Hide QR
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

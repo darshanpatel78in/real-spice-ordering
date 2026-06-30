@@ -21,13 +21,22 @@ export default function MenuCard({ item, index }: Props) {
     >
       {/* Image */}
       <div className="relative h-44 md:h-52 w-full overflow-hidden">
-        <Image
-          src={item.image}
-          alt={item.name}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
-          sizes="(max-width: 768px) 100vw, 50vw"
-        />
+        {item.image ? (
+          <Image
+            src={item.image}
+            alt={item.name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            sizes="(max-width: 768px) 100vw, 50vw"
+          />
+        ) : (
+          <div
+            role="img"
+            aria-label={item.name}
+            className="w-full h-full bg-center bg-cover"
+            style={{ backgroundImage: `url('/images/placeholder.svg')` }}
+          />
+        )}
         {/* Overlay gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-transparent to-transparent" />
 
@@ -53,7 +62,7 @@ export default function MenuCard({ item, index }: Props) {
         {/* Thali items list */}
         {item.items && item.items.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-1.5">
-            {item.items.map((subItem) => (
+            {item.items.map((subItem: string) => (
               <span
                 key={subItem}
                 className="rounded-full bg-bg-elevated px-2.5 py-0.5 text-[10px] text-text-secondary border border-border-subtle"

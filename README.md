@@ -20,6 +20,24 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Environment Setup
+
+Copy `.env.example` to `.env.local` and fill in your credentials:
+
+```bash
+cp .env.example .env.local
+```
+
+Required values:
+- `MONGODB_URI`
+- `NEXT_PUBLIC_BASE_URL`
+- `PHONEPE_MERCHANT_ID`
+- `PHONEPE_SALT_KEY`
+- `PHONEPE_SALT_INDEX`
+- `PHONEPE_ENV`
+
+If you are testing locally, use `PHONEPE_ENV=TEST`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

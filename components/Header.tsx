@@ -61,6 +61,12 @@ export default function Header() {
           >
             Checkout
           </Link>
+          <Link
+            href="/admin"
+            className="text-text-secondary hover:text-accent-gold transition-colors duration-300 after:absolute after:bottom-[-4px] after:left-0 after:h-[2px] after:w-0 after:bg-accent-green after:transition-all after:duration-300 hover:after:w-full relative"
+          >
+            Admin
+          </Link>
         </nav>
 
         {/* Mobile: Cart + Hamburger */}
@@ -141,6 +147,13 @@ export default function Header() {
             className="block text-text-secondary hover:text-accent-gold transition-colors py-1"
           >
             Checkout
+          </Link>
+          <Link
+            href="/admin"
+            onClick={() => setMenuOpen(false)}
+            className="block text-text-secondary hover:text-accent-gold transition-colors py-1"
+          >
+            Admin
           </Link>
         </nav>
       )}
