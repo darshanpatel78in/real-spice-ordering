@@ -22,6 +22,7 @@ export default function Hero() {
               fill
               className="object-contain drop-shadow-[0_8px_24px_rgba(107,122,47,0.2)]"
               priority
+              sizes="144px"
             />
           </div>
 
@@ -59,8 +60,8 @@ export default function Hero() {
 
           {/* CTA */}
           <a
-            href="#menu"
-            className="btn-shine inline-flex items-center gap-2 rounded-full bg-accent-red px-8 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-accent-red-light hover:shadow-[0_8px_30px_rgba(198,40,40,0.35)] animate-fade-in-up"
+            href="/menu"
+                className="btn-shine mt-5  rounded-full bg-[#c62828] px-10 pt-5 pb-1 text-sm font-semibold text-white transition-all duration-300 hover:bg-[#a61f1f] hover:shadow-[0_8px_30px_rgba(198,40,40,0.3)] animate-pulse-glow disabled:opacity-50"
             style={{ animationDelay: "0.45s" }}
           >
             <span>Explore Our Menu</span>
@@ -72,11 +73,6 @@ export default function Hero() {
               stroke="currentColor"
               strokeWidth={2}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3"
-              />
             </svg>
           </a>
         </div>

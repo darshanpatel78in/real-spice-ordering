@@ -17,6 +17,7 @@ export default function Footer() {
                   alt="The Real Spice"
                   fill
                   className="object-cover"
+                  sizes="48px"
                 />
               </div>
               <div>
@@ -40,10 +41,14 @@ export default function Footer() {
               Opening Hours
             </h3>
             <div className="space-y-2 text-sm text-text-secondary">
-              <p>Monday – Sunday</p>
+              <p className="font-bold text-yellow-500">Monday – Saturday</p>
               <p className="text-accent-gold font-medium">
                 11:30 AM – 3:30 PM
               </p>
+              <p className="text-accent-gold font-medium">
+                6:00 PM – 10:30 PM
+              </p>
+              <p className="font-bold text-yellow-500">Sunday</p>
               <p className="text-accent-gold font-medium">
                 6:00 PM – 10:30 PM
               </p>

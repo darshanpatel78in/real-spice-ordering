@@ -1,6 +1,8 @@
 "use client";
 
 import { useCartStore } from "@/store/cart-store";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import Link from "next/link";
 
 export default function CartPage() {
@@ -12,15 +14,17 @@ export default function CartPage() {
   );
 
   return (
-    <main className="min-h-screen bg-bg-dark px-4 py-8 md:px-8">
-      <div className="mx-auto max-w-3xl">
+    <main className="min-h-screen bg-bg-dark">
+      <Header />
+      <div className="px-4 py-8 md:px-8">
+        <div className="mx-auto max-w-3xl">
         <div className="flex items-center justify-between mb-8 animate-fade-in-up">
           <div>
             <p className="text-xs tracking-[0.3em] uppercase text-accent-green font-medium mb-1">Review</p>
             <h1 className="font-[family-name:var(--font-playfair)] text-3xl font-bold text-text-primary">Your Cart</h1>
           </div>
           {cart.length > 0 && (
-            <button onClick={clearCart} className="flex items-center gap-2 rounded-full border border-accent-red/30 px-4 py-2 text-sm font-medium text-accent-red transition-all duration-300 hover:bg-accent-red hover:text-white hover:border-accent-red">
+            <button onClick={clearCart} className="flex items-center gap-2 rounded-full border border-accent-red/30 px-4 py-2 text-sm font-medium text-accent-red transition-all duration-300 hover:bg-accent-red hover:text-white hover:border-accent-red cursor-pointer">
               Clear All
             </button>
           )}
@@ -37,7 +41,7 @@ export default function CartPage() {
             </div>
             <h2 className="font-[family-name:var(--font-playfair)] text-xl font-semibold text-text-primary mb-2">Your cart is empty</h2>
             <p className="text-sm text-text-muted mb-6">Looks like you haven&apos;t added anything yet.</p>
-            <Link href="/" className="btn-shine inline-flex items-center gap-2 rounded-full bg-accent-green px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-accent-green-light">
+            <Link href="/menu" className="btn-shine inline-flex items-center gap-2 rounded-full bg-accent-green px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-accent-green-light hover:shadow-[0_6px_20px_rgba(107,122,47,0.25)] cursor-pointer">
               ← Browse Menu
             </Link>
           </div>
@@ -54,11 +58,11 @@ export default function CartPage() {
                 </div>
                 <div className="mt-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <button onClick={() => decreaseQty(item.id)} className="flex h-9 w-9 items-center justify-center rounded-full bg-bg-elevated border border-border-subtle text-text-secondary hover:bg-accent-red hover:text-white hover:border-accent-red transition-all duration-200 font-bold text-sm">−</button>
+                    <button onClick={() => decreaseQty(item.id)} className="flex h-9 w-9 items-center justify-center rounded-full bg-bg-elevated border border-border-subtle text-text-secondary hover:bg-accent-red hover:text-white hover:border-accent-red transition-all duration-200 font-bold text-sm cursor-pointer">−</button>
                     <span className="min-w-[28px] text-center font-semibold text-text-primary">{item.quantity}</span>
-                    <button onClick={() => increaseQty(item.id)} className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-green text-white hover:bg-accent-green-light transition-all duration-200 font-bold text-sm">+</button>
+                    <button onClick={() => increaseQty(item.id)} className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-green text-white hover:bg-accent-green-light transition-all duration-200 font-bold text-sm cursor-pointer">+</button>
                   </div>
-                  <button onClick={() => removeItem(item.id)} className="text-xs text-text-muted hover:text-accent-red transition-colors duration-200">Remove</button>
+                  <button onClick={() => removeItem(item.id)} className="text-xs text-text-muted hover:text-accent-red transition-colors duration-200 cursor-pointer">Remove</button>
                 </div>
               </div>
             ))}
@@ -83,16 +87,18 @@ export default function CartPage() {
             </div>
 
             <div className="flex flex-col gap-3 mt-4 animate-fade-in-up">
-              <Link href="/checkout" className="btn-shine block w-full rounded-full bg-accent-red py-3.5 text-center text-sm font-semibold text-white transition-all duration-300 hover:bg-accent-red-light hover:shadow-[0_8px_30px_rgba(198,40,40,0.3)]">
+              <Link href="/checkout" className="btn-shine block w-full rounded-full bg-[#c62828] py-3.5 text-center text-sm font-semibold text-white transition-all duration-300 hover:bg-[#a61f1f] hover:shadow-[0_8px_30px_rgba(198,40,40,0.3)]">
                 Proceed to Checkout
               </Link>
-              <Link href="/" className="block w-full rounded-full border border-border-subtle py-3.5 text-center text-sm font-medium text-text-secondary transition-all duration-300 hover:border-accent-green/40 hover:text-text-primary">
+              <Link href="/menu" className="block w-full rounded-full border border-border-subtle py-3.5 text-center text-sm font-medium text-text-secondary transition-all duration-300 hover:border-accent-green/40 hover:text-text-primary">
                 ← Continue Shopping
               </Link>
             </div>
           </div>
         )}
+        </div>
       </div>
+      <Footer />
     </main>
   );
 }

@@ -29,7 +29,7 @@ export default function CartBar() {
 
           <Link
             href="/cart"
-            className="btn-shine flex items-center gap-2 rounded-full bg-accent-red px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-accent-red-light hover:shadow-[0_4px_16px_rgba(198,40,40,0.35)]"
+            className="btn-shine flex items-center gap-2 rounded-full bg-[#c62828] px-6 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-[#a61f1f] hover:shadow-[0_4px_16px_rgba(198,40,40,0.35)]"
           >
             <span>View Cart</span>
             <svg

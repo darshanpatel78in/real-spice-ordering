@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -18,20 +17,21 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "The Real Spice — Authentic Indian Cuisine",
   description:
-    "Order fresh, authentic Indian food online from The Real Spice. Rich curries, aromatic biryanis, tandoori breads, and more — delivered hot to your doorstep.",
+    "Order fresh, authentic Indian food online from The Real Spice.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
-      <body>
-        <Header />
-        {children}
-      </body>
-    </html>
+    <html
+  lang="en"
+  className={`${playfair.variable} ${inter.variable}`}
+  data-scroll-behavior="smooth"
+>
+  <body>{children}</body>
+</html>
   );
 }

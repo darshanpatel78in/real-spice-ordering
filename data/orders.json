@@ -1,103 +1,5 @@
 [
   {
-    "customerName": "Hency Vekariya",
-    "phone": "9879868421",
-    "address": "surat ,gujarat",
-    "userLat": 21.23558680171674,
-    "userLng": 72.87282108047211,
-    "distanceKm": 5.26,
-    "items": [
-      {
-        "id": 1,
-        "name": "Masala Papad",
-        "price": 40,
-        "quantity": 4
-      }
-    ],
-    "subtotal": 160,
-    "deliveryCharge": 10,
-    "total": 170,
-    "paymentMethod": "COD",
-    "paymentStatus": "PENDING_COD",
-    "_id": "1782797770069-8dbbv54e",
-    "createdAt": "2026-06-30T05:36:10.069Z",
-    "updatedAt": "2026-06-30T06:39:52.056Z",
-    "orderStatus": "PREPARING"
-  },
-  {
-    "customerName": "Hency Vekariya",
-    "phone": "9879868421",
-    "address": "surat ,gujarat",
-    "userLat": 21.23558680171674,
-    "userLng": 72.87282108047211,
-    "distanceKm": 5.26,
-    "items": [
-      {
-        "id": 1,
-        "name": "Masala Papad",
-        "price": 40,
-        "quantity": 4
-      }
-    ],
-    "subtotal": 160,
-    "deliveryCharge": 10,
-    "total": 170,
-    "paymentMethod": "COD",
-    "paymentStatus": "PENDING_COD",
-    "_id": "1782797856703-vrmwdesu",
-    "createdAt": "2026-06-30T05:37:36.703Z",
-    "updatedAt": "2026-06-30T05:37:36.703Z"
-  },
-  {
-    "customerName": "xyz",
-    "phone": "9987654321",
-    "address": "surat gujarat",
-    "userLat": 21.23558680171674,
-    "userLng": 72.87282108047211,
-    "distanceKm": 5.26,
-    "items": [
-      {
-        "id": 1,
-        "name": "Masala Papad",
-        "price": 40,
-        "quantity": 4
-      }
-    ],
-    "subtotal": 160,
-    "deliveryCharge": 10,
-    "total": 170,
-    "paymentMethod": "PHONEPE",
-    "paymentStatus": "COMPLETED",
-    "_id": "1782798430745-pzjcke8s",
-    "createdAt": "2026-06-30T05:47:10.745Z",
-    "updatedAt": "2026-06-30T06:42:29.504Z",
-    "orderStatus": "PREPARING"
-  },
-  {
-    "customerName": "xyz",
-    "phone": "9987654321",
-    "address": "surat gujarat",
-    "userLat": 21.23558680171674,
-    "userLng": 72.87282108047211,
-    "distanceKm": 5.26,
-    "items": [
-      {
-        "id": 1,
-        "name": "Masala Papad",
-        "price": 40,
-        "quantity": 4
-      }
-    ],
-    "subtotal": 160,
-    "deliveryCharge": 10,
-    "total": 170,
-    "paymentMethod": "COD",
-    "paymentStatus": "PENDING_COD",
-    "_id": "1782798447454-l350jnww",
-    "createdAt": "2026-06-30T05:47:27.454Z",
-    "updatedAt": "2026-06-30T05:47:27.454Z"
-  },
-  {
     "customerName": "xyz",
     "phone": "9987654321",
     "address": "surat gujarat",
@@ -119,7 +21,44 @@
     "paymentStatus": "COMPLETED",
     "_id": "1782798619067-w00q5fg8",
     "createdAt": "2026-06-30T05:50:19.067Z",
-    "updatedAt": "2026-06-30T06:44:22.151Z",
-    "orderStatus": "READY"
+    "updatedAt": "2026-07-01T10:45:16.203Z",
+    "orderStatus": "PREPARING"
+  },
+  {
+    "customerName": "xyz",
+    "phone": "987987987",
+    "address": "surat, gujarat",
+    "userLat": 21.23558680171674,
+    "userLng": 72.87282108047211,
+    "distanceKm": 5.26,
+    "items": [
+      {
+        "id": 5,
+        "name": "Pav Bhaji",
+        "price": 150,
+        "quantity": 1
+      },
+      {
+        "id": 4,
+        "name": "Chole Bature",
+        "price": 130,
+        "quantity": 1
+      },
+      {
+        "id": 7,
+        "name": "Butter Milk",
+        "price": 30,
+        "quantity": 1
+      }
+    ],
+    "subtotal": 310,
+    "deliveryCharge": 10,
+    "total": 320,
+    "paymentMethod": "PHONEPE",
+    "paymentStatus": "COMPLETED",
+    "_id": "1782817282998-58mzry66",
+    "createdAt": "2026-06-30T11:01:22.998Z",
+    "updatedAt": "2026-07-01T10:36:34.856Z",
+    "orderStatus": "DELIVERED"
   }
 ]

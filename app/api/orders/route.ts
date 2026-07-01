@@ -46,6 +46,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       order,
+      db: true,
     });
   } catch (error) {
     console.error("ORDER_SAVE_ERROR:", error);

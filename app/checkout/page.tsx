@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { useCartStore } from "@/store/cart-store";
 export default function CheckoutPage() {
   const { cart } = useCartStore();
@@ -199,21 +201,23 @@ export default function CheckoutPage() {
   };
 
   return (
-    <main className="min-h-screen bg-bg-dark px-4 py-8 md:px-8">
-      <div className="mx-auto max-w-3xl">
-        {/* Header */}
-        <div className="mb-8 animate-fade-in-up">
-          <p className="text-xs tracking-[0.3em] uppercase text-accent-green font-medium mb-1">
-            Final Step
-          </p>
-          <h1 className="font-[family-name:var(--font-playfair)] text-3xl font-bold text-text-primary">
-            Checkout
-          </h1>
-        </div>
+    <main className="min-h-screen bg-bg-dark">
+      <Header />
+      <div className="px-4 py-8 md:px-8">
+        <div className="mx-auto max-w-3xl">
+          {/* Header */}
+          <div className="mb-8 animate-fade-in-up">
+            <p className="text-xs tracking-[0.3em] uppercase text-accent-green font-medium mb-1">
+              Final Step
+            </p>
+            <h1 className="font-[family-name:var(--font-playfair)] text-3xl font-bold text-text-primary">
+              Checkout
+            </h1>
+          </div>
 
-        <div className="section-divider mb-8" />
+          <div className="section-divider mb-8" />
 
-        <div className="grid gap-8 md:grid-cols-5">
+          <div className="grid gap-8 md:grid-cols-5">
           {/* Form column */}
           <div className="md:col-span-3 space-y-5 animate-fade-in-up">
             {/* Customer details */}
@@ -264,7 +268,7 @@ export default function CheckoutPage() {
               <button
                 onClick={getUserLocation}
                 disabled={locating}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-bg-elevated border border-border-subtle p-3.5 text-sm font-medium text-text-secondary hover:border-accent-green/40 hover:text-accent-green transition-all duration-200 disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-bg-elevated border border-border-subtle p-3.5 text-sm font-medium text-text-secondary hover:border-accent-green/40 hover:text-accent-green transition-all duration-200 disabled:opacity-50 cursor-pointer"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -415,7 +419,7 @@ export default function CheckoutPage() {
                 type="button"
                 onClick={handlePlaceOrder}
                 disabled={isSubmitting}
-                className="btn-shine mt-5 w-full rounded-full bg-accent-red py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-accent-red-light hover:shadow-[0_8px_30px_rgba(198,40,40,0.3)] animate-pulse-glow disabled:opacity-50"
+                className="btn-shine mt-5 w-full rounded-full bg-[#c62828] py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-[#a61f1f] hover:shadow-[0_8px_30px_rgba(198,40,40,0.3)] animate-pulse-glow disabled:opacity-50 cursor-pointer"
               >
                 {customer.paymentMethod === "COD"
                   ? "Place Order — Cash on Delivery"
@@ -462,8 +466,10 @@ export default function CheckoutPage() {
               )}
             </div>
           </div>
+          </div>
         </div>
       </div>
+      <Footer />
     </main>
   );
 }
