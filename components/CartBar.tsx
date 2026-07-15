@@ -17,7 +17,7 @@ export default function CartBar() {
   return (
     <div className="fixed bottom-4 left-4 right-4 z-40 mx-auto max-w-2xl animate-slide-up">
       <div className="glass rounded-2xl p-4 shadow-[0_8px_32px_rgba(0,0,0,0.4)] border border-accent-green/20">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm font-semibold text-text-primary">
               {totalItems} {totalItems === 1 ? "item" : "items"} added

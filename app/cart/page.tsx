@@ -24,8 +24,10 @@ export default function CartPage() {
             <h1 className="font-[family-name:var(--font-playfair)] text-3xl font-bold text-text-primary">Your Cart</h1>
           </div>
           {cart.length > 0 && (
-            <button onClick={clearCart} className="flex items-center gap-2 rounded-full border border-accent-red/30 px-4 py-2 text-sm font-medium text-accent-red transition-all duration-300 hover:bg-accent-red hover:text-white hover:border-accent-red cursor-pointer">
-              Clear All
+<button
+  onClick={clearCart}
+  className="flex items-center gap-2 rounded-full bg-red-600 px-4 py-2 text-sm font-medium text-white transition-all duration-300 hover:bg-red-500 active:scale-95 cursor-pointer"
+>              Clear All
             </button>
           )}
         </div>
@@ -48,8 +50,11 @@ export default function CartPage() {
         ) : (
           <div className="space-y-4">
             {cart.map((item, i) => (
-              <div key={item.id} className={`rounded-2xl bg-bg-card border border-border-subtle p-5 animate-fade-in-up stagger-${Math.min(i + 1, 10)}`}>
-                <div className="flex justify-between items-start">
+              <div key={item.id} className="rounded-2xl bg-bg-card border border-border-subtle p-5 animate-fade-in-up"
+style={{
+  animationDelay: `${i * 0.05}s`,
+}}>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex-1">
                     <h2 className="font-[family-name:var(--font-playfair)] text-base font-semibold text-text-primary">{item.name}</h2>
                     <p className="text-sm text-text-muted mt-0.5">₹{item.price} each</p>
@@ -58,9 +63,23 @@ export default function CartPage() {
                 </div>
                 <div className="mt-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <button onClick={() => decreaseQty(item.id)} className="flex h-9 w-9 items-center justify-center rounded-full bg-bg-elevated border border-border-subtle text-text-secondary hover:bg-accent-red hover:text-white hover:border-accent-red transition-all duration-200 font-bold text-sm cursor-pointer">−</button>
-                    <span className="min-w-[28px] text-center font-semibold text-text-primary">{item.quantity}</span>
-                    <button onClick={() => increaseQty(item.id)} className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-green text-white hover:bg-accent-green-light transition-all duration-200 font-bold text-sm cursor-pointer">+</button>
+                    <button
+  onClick={() => decreaseQty(item.id)}
+  className="flex h-9 w-9 items-center justify-center rounded-full bg-yellow-700 text-white transition-all duration-200 hover:bg-yellow-500 active:scale-95 font-bold text-sm cursor-pointer"
+>
+  −
+</button>
+
+<span className="min-w-[28px] text-center font-semibold text-text-primary">
+  {item.quantity}
+</span>
+
+<button
+  onClick={() => increaseQty(item.id)}
+  className="flex h-9 w-9 items-center justify-center rounded-full bg-yellow-700 text-white transition-all duration-200 hover:bg-yellow-500 active:scale-95 font-bold text-sm cursor-pointer"
+>
+  +
+</button>
                   </div>
                   <button onClick={() => removeItem(item.id)} className="text-xs text-text-muted hover:text-accent-red transition-colors duration-200 cursor-pointer">Remove</button>
                 </div>

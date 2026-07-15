@@ -1,40 +1,42 @@
-import mongoose, { Schema, models } from "mongoose";
+  import mongoose, { Schema, models } from "mongoose";
 
-const OrderItemSchema = new Schema({
-  id: Number,
-  name: String,
-  price: Number,
-  quantity: Number,
-});
+  const OrderItemSchema = new Schema({
+    id: Number,
+    name: String,
+    price: Number,
+    quantity: Number,
+  });
 
-const OrderSchema = new Schema(
-  {
-    customerName: String,
-    phone: String,
-    address: String,
+  const OrderSchema = new Schema(
+    {
+      customerName: String,
+      phone: String,
+      address: String,
+      
+      tableNumber: String,
 
-    userLat: Number,
-    userLng: Number,
-    distanceKm: Number,
+      userLat: Number,
+      userLng: Number,
+      distanceKm: Number,
 
-    items: [OrderItemSchema],
+      items: [OrderItemSchema],
 
-    subtotal: Number,
-    deliveryCharge: Number,
-    total: Number,
+      subtotal: Number,
+      deliveryCharge: Number,
+      total: Number,
 
-    paymentMethod: String,
-    merchantTransactionId: String,
-    paymentStatus: {
-      type: String,
-      default: "PENDING",
+      paymentMethod: String,
+      merchantTransactionId: String,
+      paymentStatus: {
+        type: String,
+        default: "PENDING",
+      },
+      orderStatus: {
+        type: String,
+        default: "NEW",
+      },
     },
-    orderStatus: {
-      type: String,
-      default: "NEW",
-    },
-  },
-  { timestamps: true }
-);
+    { timestamps: true }
+  );
 
-export const Order = models.Order || mongoose.model("Order", OrderSchema);
+  export const Order = models.Order || mongoose.model("Order", OrderSchema);

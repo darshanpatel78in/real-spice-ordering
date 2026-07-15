@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import BambooDining from "./Dining";
 
 export default function Hero() {
   return (
@@ -61,7 +62,7 @@ export default function Hero() {
           {/* CTA */}
           <a
             href="/menu"
-                className="btn-shine mt-5  rounded-full bg-[#c62828] px-10 pt-5 pb-1 text-sm font-semibold text-white transition-all duration-300 hover:bg-[#a61f1f] hover:shadow-[0_8px_30px_rgba(198,40,40,0.3)] animate-pulse-glow disabled:opacity-50"
+            className="btn-shine mt-5  rounded-full bg-[#c62828] px-10 pt-5 pb-1 text-sm font-semibold text-white transition-all duration-300 hover:bg-[#a61f1f] hover:shadow-[0_8px_30px_rgba(198,40,40,0.3)] animate-pulse-glow disabled:opacity-50"
             style={{ animationDelay: "0.45s" }}
           >
             <span>Explore Our Menu</span>

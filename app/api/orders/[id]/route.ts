@@ -16,6 +16,7 @@ export async function PATCH(
       {
         orderStatus: body.orderStatus,
         paymentStatus: body.paymentStatus,
+        paymentMethod: body.paymentMethod,
       },
 { returnDocument: "after" }    );
 

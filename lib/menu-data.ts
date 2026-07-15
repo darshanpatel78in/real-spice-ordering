@@ -9,22 +9,6 @@ export type MenuItem = {
   isVeg: boolean;
 };
 
-export const categories = [
-  "All",
-  "Pantry",
-  "Tandoori Roti",
-  "Soup",
-  "Chinese Veg Starter",
-  "Chinese Rice & Noodles",
-  "Dessert",
-  "Fresh Fruit Juice",
-  "Real Packed Juice Glass",
-  "Real Dal Spice",
-  "Spice Rice and Biryani",
-  "Veg Tandoori Starter",
-  "Real Spice Paneer Special",
-  
-];
 
 export const menuItems: MenuItem[] = [
   { id: 1, name: "Masala Papad", category: "Pantry", price: 40, image: "/images/masala-papad.png", description: "Crispy papad with masala seasoning.", isVeg: true },
@@ -36,7 +20,7 @@ export const menuItems: MenuItem[] = [
   { id: 7, name: "Butter Milk", category: "Pantry", price: 30, image: "/images/butter-milk.png", description: "Fresh chilled buttermilk.", isVeg: true },
   { id: 8, name: "Boondi Raita", category: "Pantry", price: 70, image: "/images/boondi-raita.png", description: "Yogurt with boondi (tiny fried gram flour balls).", isVeg: true },
   { id: 9, name: "Veg Raita", category: "Pantry", price: 70, image: "/images/veg-raita.png", description: "Yogurt with mixed vegetables.", isVeg: true },
-  { id: 10, name: "Green Salad", category:"Pantry", price: 90, image: "/images/green-salad.png", description: "Fresh seasonal green salad.", isVeg: true },
+  { id: 10, name: "Green Salad", category: "Pantry", price: 90, image: "/images/green-salad.png", description: "Fresh seasonal green salad.", isVeg: true },
   { id: 11, name: "Finger Chips", category: "Pantry", price: 100, image: "/images/finger-chips.png", description: "Crispy golden potato fries.", isVeg: true },
   { id: 12, name: "Plain Lassi", category: "Pantry", price: 50, image: "/images/plain-lassi.png", description: "Traditional yogurt drink.", isVeg: true },
   { id: 13, name: "Patiala Lassi", category: "Pantry", price: 100, image: "/images/patiala-lassi.png", description: "Rich and creamy Patiala-style lassi.", isVeg: true },
@@ -45,7 +29,7 @@ export const menuItems: MenuItem[] = [
   { id: 16, name: "Dry Fruit Lassi", category: "Pantry", price: 90, image: "/images/dry-fruit-lassi.png", description: "Lassi enriched with dry fruits and nuts.", isVeg: true },
   { id: 17, name: "Oreo Shake", category: "Pantry", price: 100, image: "/images/oreo-shake.png", description: "Creamy shake with crushed Oreo cookies.", isVeg: true },
   { id: 18, name: "Chocolate Shake", category: "Pantry", price: 100, image: "/images/chocolate-shake.png", description: "Rich and indulgent chocolate milkshake.", isVeg: true },
-  { id: 19, name: "Cold Coffee", category: "Pantry",price: 80, image: "/images/cold-coffee.png", description: "Chilled coffee with milk and ice.", isVeg: true },
+  { id: 19, name: "Cold Coffee", category: "Pantry", price: 80, image: "/images/cold-coffee.png", description: "Chilled coffee with milk and ice.", isVeg: true },
   { id: 20, name: "Tea", category: "Pantry", price: 30, image: "/images/tea.png", description: "Hot Indian tea.", isVeg: true },
   { id: 21, name: "Hot Coffee", category: "Pantry", price: 50, image: "/images/hot-coffee.png", description: "Freshly brewed hot coffee.", isVeg: true },
   { id: 22, name: "Hot Milk", category: "Pantry", price: 60, image: "/images/hot-milk.png", description: "Hot steamed milk.", isVeg: true },
@@ -125,9 +109,9 @@ export const menuItems: MenuItem[] = [
   { id: 87, name: "Veg Biryani", category: "Spice Rice and Biryani", price: 180, image: "/images/veg-biryani.png", description: "Layered vegetable biryani.", isVeg: true },
   { id: 88, name: "Veg Pulav", category: "Spice Rice and Biryani", price: 190, image: "/images/veg-pulav.png", description: "Aromatic veg pulav.", isVeg: true },
   { id: 89, name: "Kashmiri Pulav (Sweet)", category: "Spice Rice and Biryani", price: 200, image: "/images/kashmiri-pulav.png", description: "Sweet nutty Kashmiri pulav.", isVeg: true },
-  { id: 90, name: "Veg Hyderabadi Dum Biryani", category: "Spice Rice and Biryani", price: 250, image: "/images/dum-biryani.png", description: "Hyderabadi style dum biryani.", isVeg: true},
-  { id: 91, name: "Dum Biryani", category: "Spice Rice and Biryani", price: 280, image: "/images/dum-biryani.png", description: "Hearty dum biryani.", isVeg: true },
-  { id: 92, name: "Matka Biryani", category: "Spice Rice and Biryani", price: 300, image: "/images/matka-biryani.png", description: "Claypot matka biryani.", isVeg: true },
+  { id: 90, name: "Veg Hyderabadi Dum Biryani", category: "Spice Rice and Biryani", price: 250, image: "/images/veg-hydrabadi-briyani.png", description: "Hyderabadi style dum biryani.", isVeg: true },
+  { id: 91, name: "Dum Biryani", category: "Spice Rice and Biryani", price: 280, image: "/images/biryani.png", description: "Hearty dum biryani.", isVeg: true },
+  { id: 92, name: "Matka Biryani", category: "Spice Rice and Biryani", price: 300, image: "/images/matka-veg-biryani.png", description: "Claypot matka biryani.", isVeg: true },
   { id: 93, name: "Cheese Pulao", category: "Spice Rice and Biryani", price: 250, image: "/images/cheese-pulao.png", description: "Cheesy pulao.", isVeg: true },
   { id: 94, name: "Dal Khichdi", category: "Spice Rice and Biryani", price: 150, image: "/images/dal-khichdi.png", description: "Comforting dal khichdi.", isVeg: true },
   { id: 95, name: "Palak Khichdi", category: "Spice Rice and Biryani", price: 160, image: "/images/palak-khichdi.png", description: "Spinach khichdi.", isVeg: true },
@@ -159,4 +143,10 @@ export const menuItems: MenuItem[] = [
   { id: 119, name: "Paneer Pasanda", category: "Real Spice Paneer Special", price: 280, image: "/images/paneer-pasanda.png", description: "Paneer pasanda.", isVeg: true },
   { id: 120, name: "Paneer Kolhapuri", category: "Real Spice Paneer Special", price: 250, image: "/images/paneer-kolhapuri.png", description: "Kolhapuri style paneer.", isVeg: true },
   { id: 121, name: "Paneer Bhurji", category: "Real Spice Paneer Special", price: 250, image: "/images/paneer-bhurji.png", description: "Spiced paneer bhurji.", isVeg: true },
+];
+
+
+export const categories = [
+  "All",
+  ...new Set(menuItems.map((item) => item.category)),
 ];
