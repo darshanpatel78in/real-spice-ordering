@@ -128,22 +128,27 @@
         query.includes("special");
 
     const aiWords = [
-  "spicy",
   "healthy",
-  "vegetarian",
+  "sweet",
+  "spicy",
+  "hot",
+  "mild",
   "vegan",
-  "onion",
-  "garlic",
+  "vegetarian",
+  "contains",
+  "contain",
+  "ingredient",
+  "ingredients",
+  "good",
   "kids",
   "children",
-  "customize",
-  "customise",
-  "similar",
+  "recommend",
+  "suggest",
   "taste",
   "flavour",
   "flavor",
-  "hot",
-  "mild"
+  "onion",
+  "garlic"
 ];
 
   const isAIQuestion =
@@ -303,31 +308,37 @@
       // Stop Words
       // ----------------------------
 
-      const stopWords = [
-    "show",
-    "give",
-    "list",
-    "all",
-    "item",
-    "items",
-    "food",
-    "foods",
-    "dish",
-    "dishes",
-    "please",
-    "recommend",
-    "suggest",
-    "me",
-    "the",
-    "is",
-    "are",
-    "what",
-    "of",
-    "with",
-    "for",
-    "want",
-    "need"
-  ];
+const stopWords = [
+  "show",
+  "give",
+  "list",
+  "all",
+  "item",
+  "items",
+  "food",
+  "foods",
+  "dish",
+  "dishes",
+  "please",
+  "recommend",
+  "suggest",
+  "me",
+  "the",
+  "is",
+  "are",
+  "what",
+  "of",
+  "with",
+  "for",
+  "want",
+  "need",
+  "price",
+  "prices",
+  "cost",
+  "how",
+  "much",
+  "only"
+];
 
   const searchWords = query
     .split(/\s+/)
@@ -371,126 +382,76 @@ const scored = searchIndex
 const maxScore = Math.max(...scored.map(s => s.score));
 
 matches = scored
-  .filter(s => s.score >= maxScore - 10)   // only closest matches
+.filter(s => s.score >= 30)
   .sort((a,b)=>b.score-a.score)
   .map(s=>s.item);
   console.log(matches.map(i => i.name));
-
-    const needsAI =
-  isAIQuestion ||
-  wantsRecommendation;
-
-  if (!needsAI) {
-
-  return NextResponse.json({
-    reply: matches
-      .map(item =>
-        `🍽️ ${item.name}
-Price: ₹${item.price}
-${item.description ?? ""}`
-      )
-      .join("\n\n")
-  });
-
-}
-
-  if (matches.length === 0) {
+if (matches.length === 0) {
     return NextResponse.json({
       reply: "Sorry, I couldn't find any matching dish."
     });
   }
-  const bestMatch = searchIndex
-    .map(({ item, words }) => {
-      let score = 0;
+    const needsAI =
+  isAIQuestion ||
+  wantsRecommendation;
+  if (!needsAI) {
 
-      for (const word of searchWords) {
-        if (words.includes(word)) {
-          score++;
-        }
-      }
-
-      return { item, score };
-    })
-    .sort((a, b) => b.score - a.score)[0];
-
-  const dish = bestMatch?.score ? bestMatch.item : null;
-
-  if (dish) {
-
-    if (query.includes("price")) {
-      return NextResponse.json({
-        reply: `🍽️ ${dish.name}\nPrice: ₹${dish.price}`
-      });
-    }
-
-    if (
-      query.includes("ingredient") ||
-      query.includes("contains") ||
-      query.includes("made of")
-    ) {
-      return NextResponse.json({
-        reply:
-          `🍽️ ${dish.name}\n\nIngredients:\n` +
-          (dish.items?.join(", ") ?? "Not available")
-      });
-    }
-
-    if (
-      query.includes("description") ||
-      query.includes("about")
-    ) {
-      return NextResponse.json({
-        reply:
-          `🍽️ ${dish.name}\n\n${dish.description}`
-      });
-    }
-
+  if (wantsPrice) {
+    return NextResponse.json({
+      reply: matches
+        .map(item => `🍽️ ${item.name}\nPrice: ₹${item.price}`)
+        .join("\n\n")
+    });
   }
 
-  // ----------------------------
-// Direct Menu Response
-// ----------------------------
+  if (wantsDescription) {
+    return NextResponse.json({
+      reply: matches
+        .map(item =>
+          `🍽️ ${item.name}\nDescription: ${item.description ?? "Not available"}`
+        )
+        .join("\n\n")
+    });
+  }
 
-if (dish && !isAIQuestion) {
+  if (wantsIngredients) {
+    return NextResponse.json({
+      reply: matches
+        .map(item =>
+          `🍽️ ${item.name}\nIngredients: ${item.items?.join(", ") ?? "Not available"}`
+        )
+        .join("\n\n")
+    });
+  }
+
   return NextResponse.json({
-    reply: `Dish: ${dish.name}
-
-Price: ₹${dish.price}
-
-Description: ${dish.description ?? "Not available"}
-
-Tags: ${dish.tags?.join(", ") ?? "None"}`
+    reply: matches
+      .map(item => `🍽️ ${item.name}`)
+      .join("\n")
   });
+
 }
 
-if (!isAIQuestion) {
-  return NextResponse.json({
-    reply: "Sorry, I couldn't find that menu item."
-  });
-}
       // ----------------------------
       // Build AI Context
       // ----------------------------
-
-const item = matches[0];
-
 const context = `
-Dish: ${item.name}
-Category: ${item.category}
-Price: ₹${item.price}
-Description: ${item.description}
-Tags: ${item.tags?.join(", ")}
-Ingredients: ${item.items?.join(", ")}
-`;            // ----------------------------
+Dish: ${matches[0].name}
+Category: ${matches[0].category}
+Price: ₹${matches[0].price}
+Description: ${matches[0].description ?? ""}
+Tags: ${matches[0].tags?.join(", ") ?? ""}
+Ingredients: ${matches[0].items?.join(", ") ?? ""}
+`; 
+      // ----------------------------
       // Build Prompt
       // ----------------------------
 
-      const prompt = `
-  You are the restaurant assistant.
+const prompt = `
+You are the customer assistant of The Real Spice Restaurant.
 
-You MUST answer ONLY about the dish provided below.
+Answer ONLY using the dish information below.
 
-Dish:
 ${context}
 
 Customer Question:
@@ -499,14 +460,12 @@ ${message}
 Rules:
 
 - Answer ONLY about this dish.
-- Never mention another dish.
-- Never compare with another dish.
-- Never recommend another dish unless the customer asks.
-- If the menu does not mention the answer, say:
+- Never mention any other dish.
+- Never recommend another dish unless asked.
+- If the information is not present, reply:
   "This information is not available in our menu."
-- Maximum 2 sentences.
-  `;
-
+- Maximum 2 short sentences.
+`;
       // ----------------------------
       // Ask Ollama
       // ----------------------------
