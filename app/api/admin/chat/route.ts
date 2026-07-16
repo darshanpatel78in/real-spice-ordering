@@ -9,9 +9,7 @@ export async function POST(req: Request) {
 
     const { message } = await req.json();
 
-    const query = message.toLowerCase();
-    let reply = "";
-
+const query = message.toLowerCase().trim();
     const analysisKeywords = [
   "analyze",
   "analysis",
@@ -23,7 +21,6 @@ export async function POST(req: Request) {
   "compare",
   "performance",
   "suggest",
-  "recommend",
   "forecast",
   "prediction",
   "why",
@@ -31,22 +28,23 @@ export async function POST(req: Request) {
   "improve"
 ];
 
-    const orders = await Order.find().lean();
+const orders = await Order.find()
+  .sort({ createdAt: -1 })
+  .lean();
 
     const orderDetails = orders
-  .map((order: any) => `
-Order ID: ${order._id}
+  .map(
+    (order: any) => `
+Order #${order._id}
 Customer: ${order.customerName}
-Items: ${order.items
-  ?.map((i: any) => `${i.name} x${i.quantity}`)
-  .join(", ")}
 Total: ₹${order.total}
-Payment: ${order.paymentMethod}
-Payment Status: ${order.paymentStatus}
-Order Status: ${order.orderStatus}
-Date: ${new Date(order.createdAt).toLocaleString()}
-`)
-  .join("\n----------------\n");
+Status: ${order.orderStatus}
+`
+  )
+  .join("\n");
+
+  const send = (reply: string) =>
+    NextResponse.json({ reply });
 
     //------------------------------------
     // Today's Date
@@ -121,6 +119,57 @@ Date: ${new Date(order.createdAt).toLocaleString()}
 
     const totalRevenue = getRevenue(orders);
 
+    const totalCustomers = new Set(
+  orders.map((o: any) => o.customerName)
+).size;
+if (
+    query.includes("customer") ||
+    query.includes("customers")
+) {
+    return send(
+`Total Customers: ${totalCustomers}`
+    );
+}
+const averageOrderValue =
+    orders.length > 0
+        ? Math.round(totalRevenue / orders.length)
+        : 0;
+        if (
+    query.includes("average order") ||
+    query.includes("average revenue")
+) {
+    return send(
+`Average Order Value: ₹${averageOrderValue}`
+    );
+}
+const highestOrder = [...orders].sort(
+    (a:any,b:any)=>b.total-a.total
+)[0];
+if (
+    query.includes("highest order") ||
+    query.includes("largest order")
+){
+    return send(
+`Highest Order
+
+Customer: ${highestOrder.customerName}
+Amount: ₹${highestOrder.total}`
+    );
+}
+const lowestOrder = [...orders].sort(
+    (a:any,b:any)=>a.total-b.total
+)[0];
+if (
+    query.includes("lowest order") ||
+    query.includes("smallest order")
+){
+    return send(
+`Lowest Order
+
+Customer: ${lowestOrder.customerName}
+Amount: ₹${lowestOrder.total}`
+    );
+}
     const dailyRevenue = getRevenue(dailyOrders);
 
     const weeklyRevenue = getRevenue(weeklyOrders);
@@ -184,24 +233,6 @@ Date: ${new Date(order.createdAt).toLocaleString()}
     ).length;
 
     //------------------------------------
-    // Menu Statistics
-    //------------------------------------
-
-    const totalMenuItems = menuItems.length;
-
-    const totalCategories = new Set(
-      menuItems.map((m) => m.category)
-    ).size;
-
-    const vegItems = menuItems.filter(
-      (m) => m.isVeg
-    ).length;
-
-    const nonVegItems = menuItems.filter(
-      (m) => !m.isVeg
-    ).length;
-
-    //------------------------------------
     // Highest & Lowest Price
     //------------------------------------
 
@@ -240,17 +271,14 @@ Date: ${new Date(order.createdAt).toLocaleString()}
     // Best Selling Items
     //------------------------------------
 
-    const bestSellingItems = Object.entries(itemSales)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10);
+   const sortedItems = Object.entries(itemSales).sort(
+  (a, b) => b[1] - a[1]
+);
 
-    //------------------------------------
-    // Least Selling Items
-    //------------------------------------
+const bestSellingItems = sortedItems.slice(0, 10);
+const leastSellingItems = sortedItems.slice(-10).reverse();
 
-    const leastSellingItems = Object.entries(itemSales)
-      .sort((a, b) => a[1] - b[1])
-      .slice(0, 10);
+
 
     //------------------------------------
     // Unsold Items
@@ -260,54 +288,75 @@ Date: ${new Date(order.createdAt).toLocaleString()}
       .filter((item) => !(item.name in itemSales))
       .map((item) => item.name);
 
-    //------------------------------------
-    // New Menu Items
-    //------------------------------------
-
-    const newItems = [...menuItems]
-      .sort((a, b) => b.id - a.id)
-      .slice(0, 10);
-
-    //------------------------------------
-    // Menu List
-    //------------------------------------
-
-    const menuText = menuItems
-      .map(
-        (item) =>
-          `${item.name} | ₹${item.price} | ${item.category}`
-      )
-      .join("\n");
-
 const customerKeywords = [
   "recommend",
-  "recommendation",
-  "eat",
-  "drink",
-  "menu",
-  "starter",
-  "dessert",
-  "juice",
-  "paneer",
-  "biryani",
-  "pizza",
-  "burger",
-  "taste",
-  "ingredients",
+  "food recommendation",
   "description",
-  "spicy",
-  "delicious",
-  "best dish",
   "what should i eat"
 ];
+const greetings = [
+  "hi",
+  "hello",
+  "hey",
+  "good morning",
+  "good afternoon",
+  "good evening"
+];
+
+if (greetings.includes(query)) {
+  return NextResponse.json({
+    reply:
+      "Hello! I'm the Admin Assistant. Ask me about orders, revenue, payments, menu statistics, reports, or business insights."
+  });
+}
+const goodbye = [
+  "bye",
+  "goodbye",
+  "see you",
+  "see ya",
+  "exit",
+  "quit"
+];
+
+if (goodbye.includes(query)) {
+  const replies = [
+    "👋 Goodbye! Have a productive day.",
+    "😊 See you again! I'm here whenever you need restaurant insights.",
+    "👋 Thanks for using the Admin Assistant. Have a great day!"
+  ];
+
+  return NextResponse.json({
+    reply: replies[Math.floor(Math.random() * replies.length)]
+  });
+}
 if (
-  query === "hi" ||
-  query === "hello" ||
-  query === "hey"
+  query === "help" ||
+  query.includes("what can you do")
+) {
+  return NextResponse.json({
+    reply: `
+I can help with:
+
+• Orders
+• Revenue
+• Payments
+• Order Status
+• Best Selling Items
+• Least Selling Items
+• Unsold Items
+• Menu Categories
+• Order Details
+• Business Analysis & Insights
+`
+  });
+}
+if (
+  query === "thanks" ||
+  query === "thank you"
 ) {
   return NextResponse.json({
     reply:
-      "Hello! I'm the Admin Assistant. You can ask me about orders, revenue, payments, sales, menu statistics, and reports."
+      "You're welcome! Let me know if you need any restaurant statistics or business insights. 😊"
   });
 }
 
@@ -316,98 +365,81 @@ if (
     query.includes(word)
   )
 ) {
-  return NextResponse.json({
-    reply:
+  return send(
       "This is the Admin Assistant. Customer menu recommendations are available only in the customer chatbot."
-  });
+  );
 }
 
 if (
-  query.includes("today") ||
+  query.startsWith("today") ||
   query.includes("daily")
 ) {
-  return NextResponse.json({
-    reply: `
+  return send(
+     `
 Today's Orders: ${dailyOrders.length}
 Today's Revenue: ₹${dailyRevenue}
 Today's Units Sold: ${dailyUnits}
 `
-  });
+  );
 }
 
-else if (
+if (
   query.includes("week") ||
   query.includes("weekly")
 ) {
-  return NextResponse.json({
-  reply: `
+  return send(
+   `
 Weekly Orders: ${weeklyOrders.length}
 Weekly Revenue: ₹${weeklyRevenue}
 Weekly Units Sold: ${weeklyUnits}
 `
-});
+);
 }
 
-else if (
+if (
   query.includes("month") ||
   query.includes("monthly")
 ) {
- return NextResponse.json({
-  reply: `
+ return send( `
 Monthly Orders: ${monthlyOrders.length}
 Monthly Revenue: ₹${monthlyRevenue}
 Monthly Units Sold: ${monthlyUnits}
 `
- });
+ );
 }
 
-else if (
-  query.includes("revenue") ||
-  query.includes("sales") ||
-  query.includes("income") ||
-  query.includes("earnings")
-) {
-return NextResponse.json({
-  reply: `Total Revenue: ₹${totalRevenue}`
-});
-}
-
-else if (
+if (
   query.includes("total orders")
 ) {
- return NextResponse.json({
-  reply: `Total Orders: ${orders.length}`
-});
+ return send(
+   `Total Orders: ${orders.length}`
+);
 }
 
-else if (
+ if (
     query.includes("order status")||
   query.includes("new orders") ||
   query.includes("preparing") ||
   query.includes("ready") ||
   query.includes("delivered") ||
   query.includes("cancelled")
-
-
 ) {
- return NextResponse.json({
-  reply: `
+ return send ( `
 NEW: ${newOrders}
 PREPARING: ${preparingOrders}
 READY: ${readyOrders}
 DELIVERED: ${deliveredOrders}
 CANCELLED: ${cancelledOrders}
-`
-});
+`);
 }
-else if (
+
+if (
   query.includes("payment status") ||
   query.includes("payment") ||
   query.includes("paid") ||
   query.includes("pending")
 ) {
-return NextResponse.json({
-  reply: `
+return send( `
 Payment Summary
 
 Paid Orders: ${paidOrders}
@@ -415,126 +447,123 @@ Pending Payments: ${pendingPayments}
 
 COD Orders: ${codOrders}
 UPI Orders: ${upiOrders}
-`
-});
+`);
 }
 
-else if (
+ if (
+  query.includes("menu")
+) {
+  
+return send(
+    "Please use the Menu Management page to view all menu items."
+);
+}
+
+if (
   query.includes("best selling") ||
   query.includes("most sold")||
   query.includes("top selling")
 ) {
-return NextResponse.json({
-  reply: `
+return send (`
 Top Selling Items
 
 ${bestSellingItems
 .map(([name, qty]) => `${name}: ${qty}`)
 .join("\n")}
 `
-});
+);
 }
 
-else if (
+ if (
   query.includes("least selling")||
   query.includes("lowest selling")
 
 ) {
-  return NextResponse.json({
-  reply: `
+  return send( `
 Lowest Selling Items
 
 ${leastSellingItems
 .map(([name, qty]) => `${name} : ${qty}`)
 .join("\n")}
 `
-  });
+  );
 }
 
-else if (
+ if (
   query.includes("unsold")
 ) {
-return NextResponse.json({
-  reply: `
+return send(`
 Unsold Items
 
 ${unsoldItems.join("\n")}
 `
-});
+);
 }
 
-else if (
+ if (
   query.includes("cheapest")||
   query.includes("lowest price")
 ) {
-  return NextResponse.json({
-  reply: `
+  return send( `
 Cheapest Item
 
 ${cheapestDish.name}
 ₹${cheapestDish.price}
-`
-});
+`);
 }
 
-else if (
+ if (
   query.includes("expensive")||
   query.includes("highest price") ||
 query.includes("costliest")
 ) {
-  return NextResponse.json({
-  reply: `
+  return send( `
 Most Expensive Item
 
 ${expensiveDish.name}
 ₹${expensiveDish.price}
 `
-});
+);
 }
 
-else if (
+ if (
   query.includes("category")
 ) {
-  return NextResponse.json({
-  reply: categoryStats
+  return send ( categoryStats
     .map(c => `${c.category}: ${c.count}`)
     .join("\n")
-});
+);
 }
 
-else if (
-  query.includes("menu")
-) {
-  return NextResponse.json({
-  reply: menuText
-});
-}
-
-else if (
+ if (
   query.includes("order details") ||
   query.includes("show orders") ||
   query.includes("list orders") ||
   query.includes("customer order")
 ) {
-  return NextResponse.json({
-  reply: `
+  return send ( `
 Order Details
 
 ${orderDetails}
 `
-});
+);
 }
 
 
-const needsAI = analysisKeywords.some(word =>
-  query.includes(word)
-);
+const needsAI =
+    analysisKeywords.some(word => query.includes(word)) ||
+    query.startsWith("why") ||
+    query.startsWith("how can") ||
+    query.startsWith("how do") ||
+    query.startsWith("what should") ||
+    query.startsWith("which should");
+
 
 if (!needsAI) {
-  return NextResponse.json({
-    reply:
+  console.log("Unknown Admin Query:", message);
+  return send (
       "I don't have that information. Please ask about orders, sales, payments, menu, or request an analysis."
-  });
+  );
 }
 
 const analysisContext = `
@@ -569,18 +598,39 @@ ${unsoldItems.join("\n")}
     const prompt = `
 You are the Restaurant Manager AI.
 
-Dashboard:
+Answer ONLY management analysis questions.
+
+Never answer factual dashboard questions because those are already handled by the application.
+
+Only provide:
+- insights
+- comparisons
+- trends
+- recommendations
+- improvements
+
+If the question is not analytical, reply:
+
+"This question should be answered directly by the dashboard."
+Restaurant Dashboard
+
 ${analysisContext}
+
+Today's Date:
+${new Date().toLocaleDateString()}                                          
 
 Question:
 ${message}
 
-Rules:
-- Give management insights only.
-- Use only the dashboard.
-- Never invent numbers.
-- Maximum 5 sentences.
-- Suggest improvements if appropriate.
+Rules
+
+- Use ONLY the dashboard data.
+- Never invent values.
+- Give practical business advice.
+- Explain reasons.
+- Suggest improvements.
+- Maximum 5 short sentences.
+- Never answer menu questions.
 `;
     //------------------------------------
     // Ask Ollama
@@ -610,9 +660,9 @@ Rules:
 
     const data = await response.json();
 
-    return NextResponse.json({
-      reply: data.response,
-    });
+    return send (
+       data.response.trim(),
+    );
 
   } catch (error) {
 

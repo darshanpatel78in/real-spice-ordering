@@ -201,7 +201,7 @@ export default function MenuSection({
               key={item.id}
               className="glass rounded-3xl overflow-hidden border border-yellow-700/20 shadow-lg hover:-translate-y-2 hover:shadow-yellow-900/20 duration-300"
             >
-              <div className="relative h-28">
+              <div className="relative h-60">
                 <img
                   src={
                     item.image ||

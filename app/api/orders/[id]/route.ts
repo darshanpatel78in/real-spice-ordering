@@ -1,24 +1,36 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { Order } from "@/models/Order";
 
 export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
 
+    const { id } = await params;
     const body = await req.json();
 
     const updatedOrder = await Order.findByIdAndUpdate(
-      params.id,
+      id,
       {
         orderStatus: body.orderStatus,
         paymentStatus: body.paymentStatus,
         paymentMethod: body.paymentMethod,
       },
-{ returnDocument: "after" }    );
+      { new: true } // returns updated document
+    );
+
+    if (!updatedOrder) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Order not found",
+        },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

@@ -146,7 +146,7 @@ useEffect(() => {
         {open && (
 <div
   ref={chatRef}
-  className="fixed bottom-24 right-5 z-50 flex h-[500px] w-[360px] flex-col overflow-hidden rounded-2xl border border-yellow-500 bg-[#1f1f1f] shadow-2xl"
+  className="fixed bottom-24 right-5 top-2 z-50 flex h-[500px] w-[360px] flex-col overflow-hidden rounded-2xl border border-yellow-500 bg-[#1f1f1f] shadow-2xl"
 >
             {/* Header */}
             <div className="flex items-center justify-between bg-yellow-500 px-4 py-3">
